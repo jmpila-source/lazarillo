@@ -1,5 +1,5 @@
 // Service worker mínimo: guarda la portada y el icono para que la app abra al instante.
-const CACHE = 'lazarillo-v1';
+const CACHE = 'lazarillo-v2';
 const ARCHIVOS = ['./', 'index.html', 'manifest.webmanifest', 'icono-192.png', 'icono-512.png'];
 
 self.addEventListener('install', e => {

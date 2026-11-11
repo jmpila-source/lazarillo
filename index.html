@@ -2,51 +2,463 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14243f">
 <title>Lazarillo</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icono-192.png">
 <link rel="apple-touch-icon" href="icono-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  html,body{margin:0;height:100%;background:#14243f;color:#f3dca6;font-family:system-ui,sans-serif}
-  main{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:0 28px}
-  img{width:104px;height:104px;border-radius:24px}
-  h1{font-family:Georgia,serif;font-weight:600;font-size:32px;margin:0;color:#f7f1e6}
-  p{margin:0;font-size:15px;opacity:.85}
-  a{display:none;background:#d9a441;color:#14243f;text-decoration:none;font-weight:600;font-size:17px;padding:15px 28px;border-radius:16px}
+  :root{
+    --noche:#14243f; --noche2:#1d3357; --oro:#d9a441; --oro2:#f3dca6; --crema:#f7f1e6;
+    --papel:#fffdf8; --tinta:#1f2633; --gris:#6b7280; --linea:#e7dcc6; --ok:#2f7d5b; --rojo:#b3412f;
+    --radio:18px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--crema);color:var(--tinta);font-family:Inter,system-ui,sans-serif;font-size:16px}
+  header{
+    background:radial-gradient(120% 140% at 50% 0%,var(--noche2),var(--noche));
+    color:var(--crema);padding:22px 20px 26px;display:flex;align-items:center;gap:14px;
+    border-bottom-left-radius:28px;border-bottom-right-radius:28px;box-shadow:0 6px 24px rgba(20,36,63,.25)
+  }
+  header svg{width:54px;height:54px;border-radius:14px;flex:none;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+  header h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;margin:0;letter-spacing:.5px;line-height:1}
+  header p{margin:4px 0 0;font-size:13px;color:var(--oro2);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px}
+  main{padding:16px 14px 120px;max-width:560px;margin:0 auto}
+  .tarjeta{background:var(--papel);border:1px solid var(--linea);border-radius:var(--radio);padding:16px;margin-bottom:14px;
+    box-shadow:0 1px 3px rgba(31,38,51,.05)}
+  .tarjeta h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--gris);margin:0 0 10px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .tarjeta h2 .num{background:var(--noche);color:var(--oro2);border-radius:50%;width:22px;height:22px;display:inline-grid;place-items:center;font-size:12px}
+  select,input[type=date],input[type=time],textarea{
+    width:100%;font:inherit;font-size:17px;padding:13px 14px;border:1.5px solid var(--linea);border-radius:12px;background:#fff;color:var(--tinta);
+    appearance:none;-webkit-appearance:none}
+  select{background-image:linear-gradient(45deg,transparent 50%,var(--gris) 50%),linear-gradient(135deg,var(--gris) 50%,transparent 50%);
+    background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;background-size:6px 6px;background-repeat:no-repeat;padding-right:40px}
+  select:focus,input:focus,textarea:focus{outline:none;border-color:var(--oro)}
+  textarea{min-height:84px;resize:vertical;font-size:15px}
+  .opciones{display:grid;gap:8px}
+  .opciones.dos{grid-template-columns:1fr 1fr}
+  .opciones.tres{grid-template-columns:1fr 1fr 1fr}
+  .opcion{border:1.5px solid var(--linea);background:#fff;border-radius:12px;padding:12px 8px;text-align:center;font:inherit;font-size:15px;
+    color:var(--tinta);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:58px;justify-content:center}
+  .opcion small{color:var(--gris);font-size:12px;line-height:1.2}
+  .opcion .ic{font-size:20px;line-height:1}
+  .opcion.activa{border-color:var(--noche);background:var(--noche);color:var(--crema)}
+  .opcion.activa small{color:var(--oro2)}
+  .oculto{display:none!important}
+  .fila{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+  .fila input[type=date]{grid-column:1 / -1}
+  input{min-width:0}
+  a{color:var(--noche)}
+  .boton-ahora{border:none;background:var(--crema);border:1.5px solid var(--linea);border-radius:12px;padding:13px 12px;font:inherit;font-size:14px;color:var(--noche)}
+  .grabador{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0}
+  .microfono{width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;
+    background:radial-gradient(circle at 35% 30%,#e9bb5c,var(--oro));color:var(--noche);display:grid;place-items:center;
+    box-shadow:0 6px 18px rgba(217,164,65,.45);transition:transform .15s}
+  .microfono:active{transform:scale(.96)}
+  .microfono.grabando{background:radial-gradient(circle at 35% 30%,#d4614c,var(--rojo));color:#fff;animation:latido 1.4s infinite}
+  @keyframes latido{0%{box-shadow:0 0 0 0 rgba(179,65,47,.45)}70%{box-shadow:0 0 0 22px rgba(179,65,47,0)}100%{box-shadow:0 0 0 0 rgba(179,65,47,0)}}
+  .microfono svg{width:38px;height:38px}
+  .crono{font-variant-numeric:tabular-nums;font-size:22px;font-weight:600;color:var(--noche)}
+  .nivel{width:70%;height:6px;background:var(--linea);border-radius:3px;overflow:hidden}
+  .nivel i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--oro),var(--rojo));transition:width .08s}
+  .ayuda{font-size:13px;color:var(--gris);text-align:center;margin:0}
+  audio{width:100%;margin-top:4px}
+  .acciones-audio{display:flex;gap:8px;justify-content:center}
+  .enlace{background:none;border:none;color:var(--noche);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:6px}
+  .guardar{position:fixed;left:0;right:0;bottom:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(247,241,230,0),var(--crema) 35%)}
+  .guardar button{width:100%;max-width:560px;margin:0 auto;display:block;border:none;border-radius:16px;padding:17px;font:inherit;font-weight:600;font-size:17px;
+    background:var(--noche);color:var(--crema);box-shadow:0 6px 18px rgba(20,36,63,.3)}
+  .guardar button:disabled{opacity:.45}
+  .contacto{font-size:13px;color:var(--gris);margin-top:8px;line-height:1.5}
+  .historial summary{cursor:pointer;font-weight:600;color:var(--noche);list-style:none;display:flex;justify-content:space-between;align-items:center}
+  .historial summary::-webkit-details-marker{display:none}
+  .historial summary .chip{background:var(--crema);border:1px solid var(--linea);border-radius:20px;padding:3px 10px;font-size:13px;color:var(--gris);font-weight:500}
+  .reunion{border-left:3px solid var(--oro);padding:8px 0 8px 12px;margin:12px 0}
+  .reunion .cab{font-weight:600;font-size:14px}
+  .reunion .meta{font-size:12px;color:var(--gris);margin:2px 0 6px}
+  .reunion p{margin:0;font-size:14px;line-height:1.45;white-space:pre-line}
+  .reunion .acu{margin-top:6px;font-size:13px;color:var(--ok);white-space:pre-line}
+  .reunion a{font-size:13px;color:var(--noche)}
+  .vacio{color:var(--gris);font-size:14px;margin:10px 0 0}
+  .velo{position:fixed;inset:0;background:rgba(20,36,63,.72);display:grid;place-items:center;z-index:10;padding:24px}
+  .dialogo{background:var(--papel);border-radius:22px;padding:24px;max-width:420px;width:100%;text-align:center}
+  .dialogo h3{font-family:'Cormorant Garamond',serif;font-size:26px;margin:6px 0 8px;color:var(--noche)}
+  .dialogo p{margin:0 0 10px;color:var(--tinta);font-size:15px;line-height:1.45}
+  .dialogo .resumen{text-align:left;max-height:40vh;overflow:auto;background:var(--crema);border-radius:12px;padding:12px;font-size:14px;white-space:pre-line}
+  .dialogo button{margin-top:12px;border:none;border-radius:14px;padding:14px 18px;font:inherit;font-weight:600;background:var(--noche);color:var(--crema);width:100%}
+  .dialogo a.sec{display:block;margin-top:10px;color:var(--noche);font-size:14px}
+  .rueda{width:44px;height:44px;border-radius:50%;border:4px solid var(--linea);border-top-color:var(--oro);animation:gira 1s linear infinite;margin:6px auto}
+  @keyframes gira{to{transform:rotate(360deg)}}
+  header{position:relative;padding-top:calc(22px + env(safe-area-inset-top))}
+  .ajustes{position:absolute;right:14px;top:calc(14px + env(safe-area-inset-top));background:none;border:none;color:var(--oro2);font-size:22px;opacity:.7;padding:6px}
+  #vincular{position:fixed;inset:0;background:var(--crema);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;gap:14px}
+  #vincular h3{font-family:'Cormorant Garamond',serif;font-size:28px;margin:0;color:var(--noche)}
+  #vincular p{margin:0;color:var(--gris);font-size:15px;line-height:1.5;max-width:360px}
+  #vincular input{width:100%;max-width:360px;font:inherit;font-size:15px;padding:13px 14px;border:1.5px solid var(--linea);border-radius:12px;font-family:monospace}
+  #vincular button{border:none;border-radius:14px;padding:14px 22px;font:inherit;font-weight:600;background:var(--noche);color:var(--crema);width:100%;max-width:360px}
+  .aviso{background:#fff7e6;border:1px solid #f0d9a8;color:#7a5a17;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:14px}
 </style>
 </head>
 <body>
+<header>
+  <svg viewBox="0 0 512 512" aria-hidden="true"><defs>
+    <linearGradient id="hf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7efdf"/><stop offset="1" stop-color="#e8d6b2"/></linearGradient></defs>
+    <rect width="512" height="512" fill="url(#hf)"/>
+    <circle cx="256" cy="256" r="200" fill="none" stroke="#b8862b" stroke-width="3" stroke-opacity=".6"/>
+    <circle cx="256" cy="256" r="188" fill="none" stroke="#b8862b" stroke-width="1.5" stroke-opacity=".4"/>
+    <path d="M150 118L236 118L236 128C216 130 212 134 212 152L212 352C250 352 300 346 330 322C352 304 362 270 360 236L372 236C380 290 360 342 318 370C296 384 262 390 222 390L150 390L150 380C170 378 174 374 174 356L174 152C174 134 170 130 150 128Z" fill="#1b2f52"/>
+    <path d="M366 170Q370.7 191.3 392 196Q370.7 200.7 366 222Q361.3 200.7 340 196Q361.3 191.3 366 170Z" fill="#c8962f"/>
+  </svg>
+  <div>
+    <h1>Lazarillo</h1>
+    <p>Acompañar y guiar · registro de tutorías</p>
+  </div>
+  <button class="ajustes" id="btnAjustes" aria-label="Ajustes">⚙</button>
+</header>
+
 <main>
-  <img src="icono-192.png" alt="">
-  <h1>Lazarillo</h1>
-  <p id="msg">Abriendo…</p>
-  <a id="abrir" href="#">Abrir Lazarillo</a>
+  <div id="avisoClave" class="aviso oculto">Los audios se guardarán, pero la transcripción automática no está activada todavía. Se configura desde el menú «Lazarillo» de la hoja.</div>
+
+  <section class="tarjeta">
+    <h2><span class="num">1</span>Tutorando</h2>
+    <select id="alumno"><option value="">Cargando alumnos…</option></select>
+    <div id="contacto" class="contacto oculto"></div>
+  </section>
+
+  <section id="bloqueHistorial" class="tarjeta historial oculto">
+    <details id="detHistorial">
+      <summary><span>Historial de reuniones</span><span class="chip" id="chipHist">—</span></summary>
+      <div id="listaHist"></div>
+    </details>
+  </section>
+
+  <section class="tarjeta">
+    <h2><span class="num">2</span>¿Con quién es la reunión?</h2>
+    <div class="opciones dos" data-campo="conQuien">
+      <button class="opcion" data-v="Alumno"><span class="ic">🎒</span>Con el alumno</button>
+      <button class="opcion" data-v="Familia"><span class="ic">👨‍👩‍👧</span>Con la familia</button>
+    </div>
+    <div id="bloqueFamilia" class="oculto" style="margin-top:10px">
+      <div class="opciones tres" data-campo="familia">
+        <button class="opcion" data-v="Padre">Padre<small id="nPadre"></small></button>
+        <button class="opcion" data-v="Madre">Madre<small id="nMadre"></small></button>
+        <button class="opcion" data-v="Ambos">Ambos</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <h2><span class="num">3</span>Modalidad</h2>
+    <div class="opciones dos" data-campo="modalidad">
+      <button class="opcion" data-v="Presencial"><span class="ic">🤝</span>Presencial</button>
+      <button class="opcion" data-v="Teléfono"><span class="ic">📞</span>Teléfono</button>
+      <button class="opcion" data-v="Videoconferencia"><span class="ic">💻</span>Videoconferencia</button>
+      <button class="opcion" data-v="Correo electrónico"><span class="ic">✉️</span>Correo electrónico</button>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <h2><span class="num">4</span>Fecha y hora</h2>
+    <div class="fila">
+      <input type="date" id="fecha">
+      <input type="time" id="hora">
+      <button class="boton-ahora" id="ahora">Ahora</button>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <h2><span class="num">5</span>Resumen y acuerdos</h2>
+    <div class="grabador">
+      <button class="microfono" id="btnGrabar" aria-label="Grabar">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+      </button>
+      <div class="crono" id="crono">00:00</div>
+      <div class="nivel oculto" id="nivel"><i></i></div>
+      <p class="ayuda" id="ayudaGrabar">Pulsa para dictar el resumen y los acuerdos. Vuelve a pulsar para terminar.</p>
+      <audio id="previa" controls class="oculto"></audio>
+      <div class="acciones-audio oculto" id="accionesAudio">
+        <button class="enlace" id="btnRepetir">Repetir grabación</button>
+        <button class="enlace" id="btnBorrar">Borrar</button>
+      </div>
+      <label class="enlace oculto" id="lblArchivo">Usar la grabadora del móvil
+        <input type="file" id="archivo" accept="audio/*" capture style="display:none">
+      </label>
+    </div>
+    <textarea id="notas" placeholder="Notas escritas (opcional)"></textarea>
+  </section>
 </main>
+
+<div class="guardar"><button id="btnGuardar" disabled>Guardar tutoría</button></div>
+
+<div id="vincular" class="oculto">
+  <h3>Vincular Lazarillo</h3>
+  <p>Abre en el móvil el enlace que te envió la hoja (menú Lazarillo → Vincular el móvil), o pega aquí la clave de la app.</p>
+  <input id="inputClave" placeholder="Clave de la app" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <button id="btnClave">Vincular</button>
+  <p id="msgClave" style="color:#b3412f"></p>
+</div>
+
+<div class="velo oculto" id="velo"><div class="dialogo" id="dialogo"></div></div>
+
 <script>
-  // Lanzador: abre la aplicación de Apps Script (termina en /exec)
-  const URL_APP = 'https://script.google.com/a/macros/fomento.edu/s/AKfycbxbcOLddNxRPaSOI5ZG_UynwoAkdqXhmgwP5cTTYlBLA2d0BfuFhwSXK5LMBG7WSJA_/exec';
-  const boton = document.getElementById('abrir');
-  boton.href = URL_APP;
+const $ = id => document.getElementById(id);
+// ---------- Conexión con el servicio de Apps Script ----------
+const API_URL = 'https://script.google.com/macros/s/AKfycbxbcOLddNxRPaSOI5ZG_UynwoAkdqXhmgwP5cTTYlBLA2d0BfuFhwSXK5LMBG7WSJA_/exec';
+const ALMACEN = 'lazarillo-clave';
 
-  function mostrarBoton() {
-    document.getElementById('msg').textContent = 'Toca para volver a abrir';
-    boton.style.display = 'inline-block';
+function leerClave(){ try { return localStorage.getItem(ALMACEN) || ''; } catch(e){ return ''; } }
+function guardarClave(c){ try { localStorage.setItem(ALMACEN, c); } catch(e){} }
+
+// Enlace de vinculación: …/#clave=XXXX
+(function(){
+  const m = location.hash.match(/clave=([A-Za-z0-9]+)/);
+  if (m){ guardarClave(m[1]); history.replaceState(null, '', location.pathname); }
+})();
+
+async function api(accion, datos){
+  const r = await fetch(API_URL, { method:'POST', body: JSON.stringify({ clave: leerClave(), accion, datos: datos || {} }) });
+  if (!r.ok) throw new Error('El servicio no responde (' + r.status + ')');
+  const j = await r.json();
+  if (!j.ok){
+    if (j.error === 'CLAVE_INCORRECTA'){ pedirClave('La clave no es correcta o ha cambiado.'); throw new Error('Falta vincular el móvil.'); }
+    throw new Error(j.error);
   }
+  return j.resultado;
+}
 
-  // La primera vez abre Lazarillo directamente; si vuelves con la ✕, muestra el botón.
-  let yaAbierta = false;
-  try { yaAbierta = sessionStorage.getItem('abierta') === '1'; } catch (e) {}
-  if (!yaAbierta) {
-    try { sessionStorage.setItem('abierta', '1'); } catch (e) {}
-    setTimeout(() => location.assign(URL_APP), 350);
+function pedirClave(msg){
+  $('vincular').classList.remove('oculto');
+  $('msgClave').textContent = msg || '';
+  $('inputClave').value = '';
+}
+$('btnClave').onclick = () => {
+  const c = $('inputClave').value.trim();
+  if (!c) return;
+  guardarClave(c); $('vincular').classList.add('oculto'); cargarAlumnos();
+};
+$('btnAjustes').onclick = () => {
+  dialogo('<h3>Ajustes</h3><p>Si has cambiado la clave de la app en la hoja, vuelve a vincular el móvil.</p>' +
+    '<button onclick="cerrar();pedirClave()">Vincular de nuevo</button><a class="sec" href="#" onclick="cerrar();return false">Cerrar</a>');
+};
+
+const estado = { alumno:null, conQuien:'', familia:'', modalidad:'', audio:null, audioMime:'' };
+let alumnos = [], grabador = null, trozos = [], inicio = 0, tic = null, flujo = null, analizador = null, rafId = null;
+
+const dos = n => String(n).padStart(2,'0');
+
+function ponerAhora(){
+  const d = new Date();
+  $('fecha').value = d.getFullYear()+'-'+dos(d.getMonth()+1)+'-'+dos(d.getDate());
+  $('hora').value = dos(d.getHours())+':'+dos(d.getMinutes());
+}
+ponerAhora();
+$('ahora').onclick = ponerAhora;
+
+// ---------- Alumnos ----------
+function cargarAlumnos(){
+  if (!leerClave()) return pedirClave();
+  $('alumno').innerHTML = '<option value="">Cargando alumnos…</option>';
+  api('alumnos').then(r => {
+    alumnos = r.alumnos;
+    const sel = $('alumno');
+    sel.innerHTML = '<option value="">Elige un tutorando…</option>' +
+      alumnos.map((a,i) => `<option value="${i}">${esc(a.apellidos ? a.apellidos+', '+a.nombre : a.nombre)}</option>`).join('');
+    if (!alumnos.length) sel.innerHTML = '<option value="">No hay alumnos en la hoja Datos</option>';
+    $('avisoClave').classList.toggle('oculto', !!r.transcripcionActiva);
+  }).catch(error);
+}
+cargarAlumnos();
+
+$('alumno').onchange = e => {
+  const a = alumnos[e.target.value];
+  estado.alumno = a || null;
+  $('contacto').classList.toggle('oculto', !a);
+  $('bloqueHistorial').classList.toggle('oculto', !a);
+  if (!a) return comprobar();
+  const partes = [];
+  if (a.padre) partes.push('Padre: '+esc(a.padre)+(a.telPadre?' · <a href="tel:'+esc(a.telPadre)+'">'+esc(a.telPadre)+'</a>':''));
+  if (a.madre) partes.push('Madre: '+esc(a.madre)+(a.telMadre?' · <a href="tel:'+esc(a.telMadre)+'">'+esc(a.telMadre)+'</a>':''));
+  $('contacto').innerHTML = partes.join('<br>') || 'Sin datos de la familia';
+  $('nPadre').textContent = a.padre || ''; $('nMadre').textContent = a.madre || '';
+  cargarHistorial();
+  comprobar();
+};
+
+function cargarHistorial(){
+  $('chipHist').textContent = '…'; $('listaHist').innerHTML = '';
+  api('historial', { alumno: estado.alumno.completo }).then(h => {
+    $('chipHist').textContent = h.total ? h.total + (h.total===1?' reunión':' reuniones') : 'ninguna';
+    if (!h.total){ $('listaHist').innerHTML = '<p class="vacio">Todavía no hay reuniones registradas.</p>'; return; }
+    $('listaHist').innerHTML = (h.historialUrl?`<p style="margin:10px 0 0"><a href="${h.historialUrl}" target="_blank">Abrir el documento de historial ↗</a></p>`:'') +
+      h.reuniones.map(r => `<div class="reunion">
+        <div class="cab">Nº ${r.nReunion} · ${esc(r.fecha)} · ${esc(r.hora)}</div>
+        <div class="meta">${r.conQuien==='Familia' ? 'Familia ('+esc(r.familia.toLowerCase())+')' : 'Alumno'} · ${esc(r.modalidad)}${r.estado && r.estado!=='Transcrito' && r.estado!=='Sin audio' ? ' · <em>'+esc(r.estado)+'</em>':''}</div>
+        ${r.resumen ? `<p>${esc(r.resumen)}</p>` : ''}
+        ${r.acuerdos ? `<div class="acu">${esc(r.acuerdos)}</div>` : ''}
+        ${r.audioUrl ? `<a href="${r.audioUrl}" target="_blank">Escuchar audio ↗</a>` : ''}
+      </div>`).join('');
+  }).catch(error);
+}
+
+// ---------- Opciones ----------
+document.querySelectorAll('.opciones').forEach(grupo => {
+  grupo.addEventListener('click', e => {
+    const b = e.target.closest('.opcion'); if (!b) return;
+    grupo.querySelectorAll('.opcion').forEach(x => x.classList.toggle('activa', x === b));
+    estado[grupo.dataset.campo] = b.dataset.v;
+    if (grupo.dataset.campo === 'conQuien'){
+      $('bloqueFamilia').classList.toggle('oculto', b.dataset.v !== 'Familia');
+      if (b.dataset.v !== 'Familia'){ estado.familia=''; document.querySelectorAll('[data-campo=familia] .opcion').forEach(x=>x.classList.remove('activa')); }
+    }
+    comprobar();
+  });
+});
+
+function comprobar(){
+  const ok = estado.alumno && estado.conQuien && (estado.conQuien!=='Familia' || estado.familia) && estado.modalidad && !grabador;
+  $('btnGuardar').disabled = !ok;
+}
+
+// ---------- Grabación ----------
+function tipoAudio(){
+  const t = ['audio/webm;codecs=opus','audio/mp4','audio/ogg;codecs=opus','audio/webm'];
+  return (window.MediaRecorder && t.find(x => MediaRecorder.isTypeSupported(x))) || '';
+}
+
+$('btnGrabar').onclick = async () => {
+  if (grabador) return parar();
+  try {
+    flujo = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true } });
+  } catch (e) {
+    const motivos = {
+      NotAllowedError: 'El permiso del micrófono está denegado. Actívalo en Chrome → Configuración → Configuración de sitios → Micrófono.',
+      NotReadableError: 'Otra aplicación está usando el micrófono (una llamada, la grabadora, WhatsApp…). Ciérrala y vuelve a pulsar.',
+      NotFoundError: 'El móvil no encuentra ningún micrófono disponible.',
+      SecurityError: 'Chrome no permite el micrófono en esta pantalla.'
+    };
+    $('ayudaGrabar').textContent = (motivos[e.name] || 'No se ha podido usar el micrófono (' + e.name + ').') +
+      ' Vuelve a pulsar el botón para reintentarlo, o graba con la grabadora del móvil:';
+    $('lblArchivo').classList.remove('oculto');
+    return;
+  }
+  const mime = tipoAudio();
+  grabador = new MediaRecorder(flujo, mime ? { mimeType:mime, audioBitsPerSecond:32000 } : undefined);
+  trozos = [];
+  grabador.ondataavailable = ev => { if (ev.data.size) trozos.push(ev.data); };
+  grabador.onstop = () => {
+    const blob = new Blob(trozos, { type: grabador.mimeType || mime || 'audio/webm' });
+    ponerAudio(blob, blob.type);
+    flujo.getTracks().forEach(t => t.stop());
+    grabador = null; comprobar();
+  };
+  grabador.start(1000);
+  inicio = Date.now();
+  $('btnGrabar').classList.add('grabando');
+  $('ayudaGrabar').textContent = 'Grabando… pulsa de nuevo para terminar.';
+  $('crono').textContent = '00:00';
+  tic = setInterval(() => { const s = Math.floor((Date.now()-inicio)/1000); $('crono').textContent = dos(Math.floor(s/60))+':'+dos(s%60); }, 500);
+  medirNivel();
+  comprobar();
+};
+
+function parar(){
+  clearInterval(tic); cancelAnimationFrame(rafId);
+  $('nivel').classList.add('oculto');
+  $('btnGrabar').classList.remove('grabando');
+  if (grabador && grabador.state !== 'inactive') grabador.stop();
+}
+
+function medirNivel(){
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    analizador = ctx.createAnalyser(); analizador.fftSize = 256;
+    ctx.createMediaStreamSource(flujo).connect(analizador);
+    const datos = new Uint8Array(analizador.frequencyBinCount);
+    $('nivel').classList.remove('oculto');
+    const pinta = () => {
+      analizador.getByteFrequencyData(datos);
+      const m = datos.reduce((a,b)=>a+b,0)/datos.length;
+      $('nivel').firstElementChild.style.width = Math.min(100, m*1.6)+'%';
+      rafId = requestAnimationFrame(pinta);
+    };
+    pinta();
+  } catch(e){}
+}
+
+function ponerAudio(blob, tipo){
+  estado.audio = blob; estado.audioMime = tipo || blob.type || 'audio/webm';
+  $('previa').src = URL.createObjectURL(blob);
+  $('previa').classList.remove('oculto');
+  $('accionesAudio').classList.remove('oculto');
+  $('btnGrabar').classList.add('oculto');
+  $('ayudaGrabar').textContent = 'Audio listo. Escúchalo si quieres antes de guardar.';
+}
+
+function quitarAudio(){
+  estado.audio = null; estado.audioMime = '';
+  $('previa').classList.add('oculto'); $('previa').removeAttribute('src');
+  $('accionesAudio').classList.add('oculto');
+  $('btnGrabar').classList.remove('oculto');
+  $('crono').textContent = '00:00';
+  $('ayudaGrabar').textContent = 'Pulsa para dictar el resumen y los acuerdos. Vuelve a pulsar para terminar.';
+}
+$('btnBorrar').onclick = quitarAudio;
+$('btnRepetir').onclick = () => { quitarAudio(); $('btnGrabar').click(); };
+$('archivo').onchange = e => { const f = e.target.files[0]; if (f) ponerAudio(f, f.type); };
+
+// ---------- Guardar ----------
+$('btnGuardar').onclick = async () => {
+  dialogo('<div class="rueda"></div><h3>Guardando…</h3><p>' + (estado.audio ? 'Subiendo el audio a tu Drive.' : 'Anotando la tutoría.') + '</p>', false);
+  const datos = {
+    alumno: estado.alumno.completo, conQuien: estado.conQuien, familia: estado.familia,
+    modalidad: estado.modalidad, fecha: $('fecha').value, hora: $('hora').value, notas: $('notas').value
+  };
+  if (estado.audio){ datos.audioBase64 = await aBase64(estado.audio); datos.audioMime = estado.audioMime; }
+  let r;
+  try { r = await api('guardar', datos); }
+  catch (e) { return dialogo('<h3>No se ha guardado</h3><p>'+esc(e.message)+'</p><button onclick="cerrar()">Volver</button>'); }
+  if (r.transcribir){
+    dialogo('<div class="rueda"></div><h3>Transcribiendo…</h3><p>Reunión nº '+r.nReunion+' guardada. Ahora paso el audio a texto; tarda unos segundos.</p>');
+    try {
+      const t = await api('transcribir', { id: r.id });
+      const acu = t.acuerdos && t.acuerdos.length ? '\n\nAcuerdos:\n• ' + t.acuerdos.join('\n• ') : '';
+      terminado('Reunión nº '+r.nReunion+' guardada y transcrita.', esc((t.transcripcion||'') + acu), r.historialUrl);
+    } catch (e) {
+      terminado('Reunión nº '+r.nReunion+' guardada con su audio.', '', r.historialUrl, e.message);
+    }
   } else {
-    mostrarBoton();
+    terminado('Reunión nº '+r.nReunion+' guardada' + (r.tieneAudio ? ' con su audio.' : '.'), '', r.historialUrl,
+      r.tieneAudio ? 'La transcripción automática no está activada: el audio queda pendiente.' : '');
   }
-  window.addEventListener('pageshow', e => { if (e.persisted) mostrarBoton(); });
+};
 
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+function terminado(titulo, resumen, url, aviso){
+  dialogo('<h3>Hecho</h3><p>'+esc(titulo)+'</p>' + (aviso ? '<p style="color:#7a5a17;font-size:14px">'+esc(aviso)+'</p>' : '') +
+    (resumen ? '<div class="resumen">'+resumen+'</div>' : '') +
+    '<button onclick="nueva()">Nueva tutoría</button>' + (url ? '<a class="sec" href="'+url+'" target="_blank">Ver historial del alumno ↗</a>' : ''), true);
+}
+
+function nueva(){
+  cerrar(); quitarAudio(); $('notas').value=''; ponerAhora();
+  ['conQuien','familia','modalidad'].forEach(c => estado[c]='');
+  document.querySelectorAll('.opcion').forEach(x=>x.classList.remove('activa'));
+  $('bloqueFamilia').classList.add('oculto');
+  if (estado.alumno) cargarHistorial();
+  comprobar(); window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function aBase64(blob){
+  return new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = ko; r.readAsDataURL(blob); });
+}
+function dialogo(html){ $('dialogo').innerHTML = html; $('velo').classList.remove('oculto'); }
+function cerrar(){ $('velo').classList.add('oculto'); }
+function error(e){ dialogo('<h3>Algo ha fallado</h3><p>'+esc(e.message||e)+'</p><button onclick="cerrar()">Cerrar</button>'); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
 </html>
